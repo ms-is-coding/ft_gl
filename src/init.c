@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 22:44:23 by smamalig          #+#    #+#             */
-/*   Updated: 2025/03/21 09:38:57 by smamalig         ###   ########.fr       */
+/*   Updated: 2025/03/21 13:40:05 by smamalig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ int	ft_gl_loop(t_ft_gl *gl_ptr)
 void	ft_gl_destroy(t_ft_gl *gl_ptr)
 {
 	free(gl_ptr->pixel_buffer);
+	free(gl_ptr->color_buffer);
 	free(gl_ptr);
 }
 
@@ -53,7 +54,7 @@ int	ft_gl_clear(t_ft_gl *gl_ptr)
 {
 	memset(gl_ptr->pixel_buffer, 0, gl_ptr->real_width * gl_ptr->real_height);
 	memset(gl_ptr->color_buffer, 0, gl_ptr->real_width * gl_ptr->real_height * sizeof(int));
-	write(1, "\x1b[3J", 4);
+	write(1, "\e[3J\e[2J", 8);
 
 	return (0);
 }
@@ -93,7 +94,7 @@ void	print_braille(int x)
 
 void	ft_put_color(int r, int g, int b)
 {
-	write(1, "\033[38;2;", 7);
+	write(1, "\e[38;2;", 7);
 	char buf[10];
 	int i = 9;
 	do {
@@ -120,7 +121,7 @@ void	ft_put_color(int r, int g, int b)
 
 void	ft_put_position(int x, int y)
 {
-	write(1, "\033[", 2);
+	write(1, "\e[", 2);
 	char buf[10];
 	int i = 9;
 	while (y) {
@@ -184,9 +185,11 @@ int	ft_gl_text(t_ft_gl *gl_ptr, char *text, int x, int y, int anchor)
 
 int	ft_gl_pixel_put(t_ft_gl *gl_ptr, int x, int y, int color)
 {
+
+	if (x < 0 || x >= gl_ptr->width || y < 0 || y >= gl_ptr->height)
+		return (1);
 	int	real_x = x >> 1;
 	int real_y = y >> 2;
-
 	gl_ptr->pixel_buffer[real_y * gl_ptr->real_width + real_x] |= braille_bitmask(x & 1, y & 3);
 	ft_gl_update_color(gl_ptr, real_x, real_y, color);
 	ft_gl_update_pixel(gl_ptr, real_x, real_y);

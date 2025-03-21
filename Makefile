@@ -6,7 +6,7 @@
 #    By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/06 23:24:42 by smamalig          #+#    #+#              #
-#    Updated: 2025/03/21 02:45:06 by smamalig         ###   ########.fr        #
+#    Updated: 2025/03/21 13:19:02 by smamalig         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,8 @@ NAME        = libft_gl.a
 AR          = ar
 ARFLAGS     = rcs
 CC          = cc
-CFLAGS      = -Wall -Wextra -Werror -g3 -fsanitize=address -lm
+CFLAGS      = -Wall -Wextra -Werror -g3 -lm
+# -fsanitize=address
 SRCS        = src/init.c src/loop.c src/pixel_put.c
 OBJ_DIR     = obj
 OBJS        = $(patsubst src/%.c, $(OBJ_DIR)/%.o, $(SRCS))

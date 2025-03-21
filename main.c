@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 22:53:41 by smamalig          #+#    #+#             */
-/*   Updated: 2025/03/21 10:04:23 by smamalig         ###   ########.fr       */
+/*   Updated: 2025/03/21 11:40:06 by smamalig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 #include <unistd.h>
 #include <stdint.h>
-
-#include "../../so_long/libmlx/mlx.h"
 
 typedef struct {
     float x, y, z;
@@ -78,10 +76,21 @@ void draw_cube(t_ft_gl *gl_ptr, t_vec3 *vertices, float d, float scale, int x_of
 
 #include <math.h>
 
+t_vec3 rotate_x(t_vec3 v, float angle) {
+    float cos_a = cosf(angle);
+    float sin_a = sinf(angle);
+    return (t_vec3){ v.x, v.y * cos_a - v.z * sin_a, v.y * sin_a + v.z * cos_a };
+}
+
 t_vec3 rotate_y(t_vec3 v, float angle) {
     float cos_a = cosf(angle);
     float sin_a = sinf(angle);
     return (t_vec3){ v.x * cos_a + v.z * sin_a, v.y, -v.x * sin_a + v.z * cos_a };
+}
+t_vec3 rotate_z(t_vec3 v, float angle) {
+    float cos_a = cosf(angle);
+    float sin_a = sinf(angle);
+    return (t_vec3){ v.x * cos_a - v.y * sin_a, v.x * sin_a + v.y * cos_a, v.z };
 }
 
 void fill_triangle(t_ft_gl *gl_ptr, int x0, int y0, int x1, int y1, int x2, int y2, int color) {
@@ -112,28 +121,21 @@ int	main()
 {
 	t_ft_gl	*gl_ptr = ft_gl_init();
 	ft_gl_clear(gl_ptr);
-
-	// ft_line(gl_ptr, 00, 16, 32, 32);
-	// ft_line(gl_ptr, 32, 32, 64, 16);
-	// ft_line(gl_ptr, 64, 16, 32, 00);
-	// ft_line(gl_ptr, 32, 00, 00, 16);
-	// ft_line(gl_ptr, 00, 16, 00, 48);
-	// ft_line(gl_ptr, 00, 48, 32, 64);
-	// ft_line(gl_ptr, 32, 64, 64, 48);
-	// ft_line(gl_ptr, 64, 48, 64, 16);
-	// ft_line(gl_ptr, 32, 32, 32, 64);
 	
-	// ft_gl_text(gl_ptr, "Hello, World!", 20, 16, 0);
+	ft_gl_text(gl_ptr, "Hello, World!", 20, 16, 0);
 
 	write(1, "\e[?25l", 6);
 
 	while (1) {
-		usleep(16666);
+		usleep(20000);
 		for (int i = 0; i < 8; i++) {
-			cube_vertices[i] = rotate_y(cube_vertices[i], 0.1);
+			cube_vertices[i] = rotate_x(cube_vertices[i], 0.01);
+			cube_vertices[i] = rotate_y(cube_vertices[i], 0.01);
+			cube_vertices[i] = rotate_z(cube_vertices[i], 0.01);
 		}
 		ft_gl_clear(gl_ptr);
 		draw_cube(gl_ptr, cube_vertices, 5., 64., 32, 32);
+		ft_gl_text(gl_ptr, "Hello, World!", 32, 10, 0);
 	}
 
 	ft_gl_loop(gl_ptr);
