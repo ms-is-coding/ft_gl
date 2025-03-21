@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 22:53:41 by smamalig          #+#    #+#             */
-/*   Updated: 2025/03/21 09:38:35 by smamalig         ###   ########.fr       */
+/*   Updated: 2025/03/21 10:04:23 by smamalig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,26 @@
 
 #include "../../so_long/libmlx/mlx.h"
 
+typedef struct {
+    float x, y, z;
+} t_vec3;
+
+t_vec3 cube_vertices[8] = {
+    {-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1},
+    {-1, -1,  1}, {1, -1,  1}, {1, 1,  1}, {-1, 1,  1}
+};
+
 int	ft_abs(int x)
 {
 	if (x < 0)
 		return -x;
 	return x;
+}
+
+t_vec3 project(t_vec3 v, float d, float scale) {
+    float factor = scale / (v.z + d);
+    t_vec3 p = {v.x * factor, v.y * factor, 0}; // z is ignored after projection
+    return p;
 }
 
 void ft_line(t_ft_gl *gl_ptr, int x0, int y0, int x1, int y1)
@@ -47,22 +62,79 @@ void ft_line(t_ft_gl *gl_ptr, int x0, int y0, int x1, int y1)
 	}
 }
 
+void draw_cube(t_ft_gl *gl_ptr, t_vec3 *vertices, float d, float scale, int x_offset, int y_offset) {
+    int edges[12][2] = {
+        {0, 1}, {1, 2}, {2, 3}, {3, 0}, // Back face
+        {4, 5}, {5, 6}, {6, 7}, {7, 4}, // Front face
+        {0, 4}, {1, 5}, {2, 6}, {3, 7}  // Connecting edges
+    };
+
+    for (int i = 0; i < 12; i++) {
+        t_vec3 p1 = project(vertices[edges[i][0]], d, scale);
+        t_vec3 p2 = project(vertices[edges[i][1]], d, scale);
+        ft_line(gl_ptr, p1.x + x_offset, p1.y + y_offset, p2.x + x_offset, p2.y + y_offset);
+    }
+}
+
+#include <math.h>
+
+t_vec3 rotate_y(t_vec3 v, float angle) {
+    float cos_a = cosf(angle);
+    float sin_a = sinf(angle);
+    return (t_vec3){ v.x * cos_a + v.z * sin_a, v.y, -v.x * sin_a + v.z * cos_a };
+}
+
+void fill_triangle(t_ft_gl *gl_ptr, int x0, int y0, int x1, int y1, int x2, int y2, int color) {
+    // Compute bounding box
+    int min_x = fmin(x0, fmin(x1, x2));
+    int max_x = fmax(x0, fmax(x1, x2));
+    int min_y = fmin(y0, fmin(y1, y2));
+    int max_y = fmax(y0, fmax(y1, y2));
+
+    // Precompute denominator for barycentric coordinates
+    float denom = (float)((y1 - y2) * (x0 - x2) + (x2 - x1) * (y0 - y2));
+
+    for (int y = min_y; y <= max_y; y++) {
+        for (int x = min_x; x <= max_x; x++) {
+            float alpha = ((y1 - y2) * (x - x2) + (x2 - x1) * (y - y2)) / denom;
+            float beta  = ((y2 - y0) * (x - x2) + (x0 - x2) * (y - y2)) / denom;
+            float gamma = 1.0f - alpha - beta;
+
+            // If inside the triangle, update both buffers
+            if (alpha >= 0 && beta >= 0 && gamma >= 0) {
+                ft_gl_pixel_put(gl_ptr, x, y, color);  // Set pixel in the braille buffer
+            }
+        }
+    }
+}
+
 int	main()
 {
 	t_ft_gl	*gl_ptr = ft_gl_init();
 	ft_gl_clear(gl_ptr);
 
-	ft_line(gl_ptr, 00, 16, 32, 32);
-	ft_line(gl_ptr, 32, 32, 64, 16);
-	ft_line(gl_ptr, 64, 16, 32, 00);
-	ft_line(gl_ptr, 32, 00, 00, 16);
-	ft_line(gl_ptr, 00, 16, 00, 48);
-	ft_line(gl_ptr, 00, 48, 32, 64);
-	ft_line(gl_ptr, 32, 64, 64, 48);
-	ft_line(gl_ptr, 64, 48, 64, 16);
-	ft_line(gl_ptr, 32, 32, 32, 64);
+	// ft_line(gl_ptr, 00, 16, 32, 32);
+	// ft_line(gl_ptr, 32, 32, 64, 16);
+	// ft_line(gl_ptr, 64, 16, 32, 00);
+	// ft_line(gl_ptr, 32, 00, 00, 16);
+	// ft_line(gl_ptr, 00, 16, 00, 48);
+	// ft_line(gl_ptr, 00, 48, 32, 64);
+	// ft_line(gl_ptr, 32, 64, 64, 48);
+	// ft_line(gl_ptr, 64, 48, 64, 16);
+	// ft_line(gl_ptr, 32, 32, 32, 64);
+	
+	// ft_gl_text(gl_ptr, "Hello, World!", 20, 16, 0);
 
-	ft_gl_text(gl_ptr, "Hello, World!", 20, 16, 0);
+	write(1, "\e[?25l", 6);
+
+	while (1) {
+		usleep(16666);
+		for (int i = 0; i < 8; i++) {
+			cube_vertices[i] = rotate_y(cube_vertices[i], 0.1);
+		}
+		ft_gl_clear(gl_ptr);
+		draw_cube(gl_ptr, cube_vertices, 5., 64., 32, 32);
+	}
 
 	ft_gl_loop(gl_ptr);
 	ft_gl_destroy(gl_ptr);
