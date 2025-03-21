@@ -6,7 +6,7 @@
 #    By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/06 23:24:42 by smamalig          #+#    #+#              #
-#    Updated: 2025/03/20 20:43:17 by smamalig         ###   ########.fr        #
+#    Updated: 2025/03/21 02:45:06 by smamalig         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,9 +14,10 @@ NAME        = libft_gl.a
 AR          = ar
 ARFLAGS     = rcs
 CC          = cc
-CFLAGS      = -Wall -Wextra -Werror -g3 -fsanitize=address
-SRCS        = main.c
-OBJS        = $(SRCS:.c=.o)
+CFLAGS      = -Wall -Wextra -Werror -g3 -fsanitize=address -lm
+SRCS        = src/init.c src/loop.c src/pixel_put.c
+OBJ_DIR     = obj
+OBJS        = $(patsubst src/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 INCLUDES    = -Iinclude
 HEADER      = include/libft_gl.h
 
@@ -34,11 +35,12 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@printf "$(BOLD)$(BLUE)%12s$(RESET): $(YELLOW)Building$(RESET) $(NAME)\n" $(NAME)
-	@$(AR) $(AR_FLAGS) $(NAME) $(OBJS)
+	@$(AR) $(ARFLAGS) $(NAME) $(OBJS)
 
-%.o: %.c $(HEADER)
+$(OBJ_DIR)/%.o: src/%.c $(HEADER)
+	@mkdir -p $(dir $@)	
 	@printf "$(BOLD)$(BLUE)%12s$(RESET): $(MAGENTA)Compiling$(RESET) $<\n" $(NAME)
-	@$(CC) $(CFLAGS) -I$(INCLUDES) -c $< -o $@
+	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 	@printf "$(BOLD)$(BLUE)%12s$(RESET): $(RED)Removing$(RESET) object files\n" $(NAME)
@@ -47,6 +49,10 @@ clean:
 fclean: clean
 	@printf "$(BOLD)$(BLUE)%12s$(RESET): $(RED)Removing$(RESET) executables and libraries\n" $(NAME)
 	@rm -f $(NAME)
+
+test: $(OBJS)
+	@$(CC) $(CFLAGS) $(INCLUDES) main.c $(OBJS)
+
 
 re: fclean all
 
