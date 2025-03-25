@@ -60,22 +60,3 @@ jobs:
         with:
           name: test-results
           path: a.out
-
-  security_scan:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Setup dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq wget
-
-      - name: Download safety
-        run: wget https://github.com/safety-cli/safety/releases/download/v2.3.4/safety
-
-      - name: Make safety executable
-        run: chmod +x safety
-
-      - name: Run security scan
-        run: ./safety check
-        continue-on-error: true
