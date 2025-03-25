@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 22:53:41 by smamalig          #+#    #+#             */
-/*   Updated: 2025/03/21 11:40:06 by smamalig         ###   ########.fr       */
+/*   Updated: 2025/03/25 20:45:12 by smamalig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,16 +117,14 @@ void fill_triangle(t_ft_gl *gl_ptr, int x0, int y0, int x1, int y1, int x2, int 
     }
 }
 
-int	main()
-{
+int	main() {
 	t_ft_gl	*gl_ptr = ft_gl_init();
 	ft_gl_clear(gl_ptr);
 	
 	ft_gl_text(gl_ptr, "Hello, World!", 20, 16, 0);
 
-	write(1, "\e[?25l", 6);
-
-	while (1) {
+	int	iters = 100;
+	while (iters-- > 0) {
 		usleep(20000);
 		for (int i = 0; i < 8; i++) {
 			cube_vertices[i] = rotate_x(cube_vertices[i], 0.01);
@@ -138,7 +136,7 @@ int	main()
 		ft_gl_text(gl_ptr, "Hello, World!", 32, 10, 0);
 	}
 
-	ft_gl_loop(gl_ptr);
+	// ft_gl_loop(gl_ptr);
 	ft_gl_destroy(gl_ptr);
 	return (0);
 }

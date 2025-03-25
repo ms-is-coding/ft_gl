@@ -6,7 +6,7 @@
 /*   By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 22:38:52 by smamalig          #+#    #+#             */
-/*   Updated: 2025/03/21 09:34:34 by smamalig         ###   ########.fr       */
+/*   Updated: 2025/03/21 22:57:16 by smamalig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@ typedef struct s_ft_gl
 	int			real_height;
 	int			width;
 	int			height;
+	int			color;
+	int			current_x;
+	int			current_y;
 	uint8_t		*pixel_buffer;
 	uint32_t	*color_buffer;
 }	t_ft_gl;

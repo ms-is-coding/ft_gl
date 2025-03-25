@@ -6,13 +6,11 @@
 /*   By: smamalig <smamalig@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 22:44:23 by smamalig          #+#    #+#             */
-/*   Updated: 2025/03/21 13:40:05 by smamalig         ###   ########.fr       */
+/*   Updated: 2025/03/22 16:48:53 by smamalig         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_gl.h"
-#include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -30,8 +28,12 @@ t_ft_gl	*ft_gl_init()
 	gl_ptr->real_height = t.ws_row;
 	gl_ptr->width = t.ws_col * 2;
 	gl_ptr->height = t.ws_row * 4;
+	gl_ptr->color = 0xffffff;
+	gl_ptr->current_x = 0;
+	gl_ptr->current_y = 0;
 	gl_ptr->pixel_buffer = calloc(t.ws_col * t.ws_row, sizeof(char));
 	gl_ptr->color_buffer = calloc(t.ws_col * t.ws_row, sizeof(int));
+	write(1, "\e[?25l", 6);
 	return (gl_ptr);
 }
 
@@ -142,11 +144,22 @@ void	ft_put_position(int x, int y)
 int	ft_gl_update_pixel(t_ft_gl *gl_ptr, int real_x, int real_y)
 {
 	int index = real_y * gl_ptr->real_width + real_x;
-	ft_put_position(real_x + 1, real_y + 1);
+	if (real_y != gl_ptr->current_y || real_x != gl_ptr->current_x)
+	{
+		ft_put_position(real_x + 1, real_y + 1);
+	}
+	gl_ptr->current_x = ++real_x;
+	gl_ptr->current_y = real_y++;
+	if (gl_ptr->current_x == gl_ptr->real_width)
+	{
+		gl_ptr->current_y++;
+		gl_ptr->current_x = 0;
+	}
 	int	color = gl_ptr->color_buffer[index];
-	ft_put_color((color & 0xff0000) >> 16, (color & 0xff00) >> 8, color & 0xff);
+	if (color != gl_ptr->color)
+		ft_put_color((color & 0xff0000) >> 16, (color & 0xff00) >> 8, color & 0xff);
+	gl_ptr->color = color;
 	print_braille(gl_ptr->pixel_buffer[index]);
-	ft_put_position(1, 1);
 	return (0);
 }
 
