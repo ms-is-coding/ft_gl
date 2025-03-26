@@ -1,0 +1,9 @@
+stages:
+  - build
+
+build-job:
+  tags:
+    - build
+  stage: build
+  script:
+    - make
